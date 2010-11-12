@@ -179,7 +179,13 @@ status_t AudioStreamOutALSA::standby()
 
     /* now close it so we can reach off while idle */
     LOGE("CALLING STANDBY\n");
+
+    /* Temporary fix to stop am389xevm to go into stand-by mode.
+    At the moment audio kernel drivers are not able to handle this 
+    standby/resume mode and we get Audio locked up on-boot.*/
+#ifndef AM389x_DEVICE_LOCK
     mHandle->module->close(mHandle);
+#endif
     framesRendered = 0;
     if (mPowerLock) {
         release_wake_lock ("AudioOutLock");

@@ -17,6 +17,10 @@ ifeq ($(strip $(BOARD_USES_ALSA_AUDIO)),true)
 
   LOCAL_C_INCLUDES += external/alsa-lib/include
 
+  ifeq ($(strip $(TARGET_BOOTLOADER_BOARD_NAME)),am389xevm)
+    LOCAL_CFLAGS += -DAM389x_DEVICE_LOCK
+  endif
+
   LOCAL_SRC_FILES := \
 	AudioHardwareALSA.cpp \
 	AudioStreamOutALSA.cpp \
