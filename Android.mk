@@ -29,6 +29,7 @@ ifeq ($(strip $(BOARD_USES_ALSA_AUDIO)),true)
 	ALSAMixer.cpp \
 	ALSAControl.cpp
 
+  LOCAL_MODULE_TAGS := optional
   LOCAL_MODULE := libaudio
 
   LOCAL_STATIC_LIBRARIES += libaudiointerface
@@ -60,6 +61,7 @@ endif
 
   LOCAL_SRC_FILES := AudioPolicyManagerALSA.cpp
 
+  LOCAL_MODULE_TAGS := optional
   LOCAL_MODULE := libaudiopolicy
 
   LOCAL_SHARED_LIBRARIES := \
@@ -91,6 +93,7 @@ endif
   	libasound \
   	liblog
 
+  LOCAL_MODULE_TAGS := optional
   LOCAL_MODULE:= alsa.default
 
   include $(BUILD_SHARED_LIBRARY)
@@ -111,6 +114,7 @@ endif
 
   LOCAL_SHARED_LIBRARIES := liblog
 
+  LOCAL_MODULE_TAGS := optional
   LOCAL_MODULE:= acoustics.default
 
   include $(BUILD_SHARED_LIBRARY)
