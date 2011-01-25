@@ -58,8 +58,17 @@ public:
                                             uint32_t format,
                                             uint32_t channels,
                                             AudioSystem::output_flags flags);
-        virtual status_t startOutput(audio_io_handle_t output, AudioSystem::stream_type stream);
-        virtual status_t stopOutput(audio_io_handle_t output, AudioSystem::stream_type stream);
+
+        virtual status_t startOutput(audio_io_handle_t output, AudioSystem::stream_type stream, int session = 0);
+        virtual status_t stopOutput(audio_io_handle_t output, AudioSystem::stream_type stream, int session = 0);
+	virtual uint32_t getStrategyForStream(AudioSystem::stream_type stream);
+        virtual audio_io_handle_t getOutputForEffect(effect_descriptor_t *desc);
+	virtual status_t registerEffect(effect_descriptor_t *desc,
+                         	        audio_io_handle_t output, 
+					uint32_t strategy, 
+					int session, int id);
+	virtual status_t unregisterEffect(int id);
+
         virtual void releaseOutput(audio_io_handle_t output);
         virtual audio_io_handle_t getInput(int inputSource,
                                             uint32_t samplingRate,

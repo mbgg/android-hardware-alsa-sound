@@ -822,7 +822,35 @@ audio_io_handle_t AudioPolicyManagerALSA::getOutput(AudioSystem::stream_type str
     return output;
 }
 
-status_t AudioPolicyManagerALSA::startOutput(audio_io_handle_t output, AudioSystem::stream_type stream)
+uint32_t AudioPolicyManagerALSA::getStrategyForStream(AudioSystem::stream_type stream)
+{
+    LOGW("AudioPolicyManagerALSA::getStrategyForStream() Stub Called... \n redirecting AudioPolicyManagerALSA::getStrategy()");
+    return AudioPolicyManagerALSA::getStrategy(stream);
+}
+
+audio_io_handle_t AudioPolicyManagerALSA::getOutputForEffect(effect_descriptor_t *desc)
+{
+    LOGW("AudioPolicyManagerALSA::getOutputForEffect() Stub Called");
+    return 0;
+}
+
+status_t AudioPolicyManagerALSA::registerEffect(effect_descriptor_t *desc,
+                                audio_io_handle_t output,
+                                uint32_t strategy,
+                                int session,
+                                int id)
+{
+    LOGW("AudioPolicyManagerALSA::registerEffect() Stub Called");
+    return 0;
+}
+
+status_t AudioPolicyManagerALSA::unregisterEffect(int id)
+{
+    LOGW("AudioPolicyManagerALSA::unregisterEffect() Stub Called");
+    return 0;
+}
+
+status_t AudioPolicyManagerALSA::startOutput(audio_io_handle_t output, AudioSystem::stream_type stream, int session)
 {
     LOGV("startOutput() output %d, stream %d", output, stream);
     ssize_t index = mOutputs.indexOfKey(output);
@@ -900,7 +928,7 @@ status_t AudioPolicyManagerALSA::startOutput(audio_io_handle_t output, AudioSyst
     return NO_ERROR;
 }
 
-status_t AudioPolicyManagerALSA::stopOutput(audio_io_handle_t output, AudioSystem::stream_type stream)
+status_t AudioPolicyManagerALSA::stopOutput(audio_io_handle_t output, AudioSystem::stream_type stream, int session)
 {
     LOGV("stopOutput() output %d, stream %d", output, stream);
     ssize_t index = mOutputs.indexOfKey(output);
