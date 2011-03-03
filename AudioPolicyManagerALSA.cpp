@@ -1422,17 +1422,20 @@ uint32_t AudioPolicyManagerALSA::getDeviceForStrategy(routing_strategy strategy)
                 if (device2 == 0) {
                     device2 = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER;
                     if (device2 == 0) {
-                        //device2 = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_FM_HEADPHONE;
+                        device2 = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_BLUETOOTH_SCO_CARKIT;
                         if (device2 == 0) {
-                            //device2 = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_FM_SPEAKER;
+                            device2 = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_BLUETOOTH_SCO_HEADSET;
                             if (device2 == 0) {
-                                device2 = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_WIRED_HEADPHONE;
+                                device2 = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_BLUETOOTH_SCO;
                                 if (device2 == 0) {
-                                    device2 = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_WIRED_HEADSET;
+                                    device2 = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_WIRED_HEADPHONE;
                                     if (device2 == 0) {
-                                        device = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_SPEAKER;
-                                        if (device == 0) {
-                                            LOGE("getDeviceForStrategy() speaker device not found");
+                                        device2 = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_WIRED_HEADSET;
+                                        if (device2 == 0) {
+                                            device = mAvailableOutputDevices & AudioSystem::DEVICE_OUT_SPEAKER;
+                                            if (device == 0) {
+                                                LOGE("getDeviceForStrategy() speaker device not found");
+                                            }
                                         }
                                     }
                                 }
