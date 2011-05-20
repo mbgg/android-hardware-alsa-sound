@@ -63,7 +63,8 @@ endif
 
   LOCAL_MODULE_TAGS := optional
   LOCAL_MODULE := libaudiopolicy
-
+ 
+ LOCAL_WHOLE_STATIC_LIBRARIES += libaudiopolicybase
   LOCAL_SHARED_LIBRARIES := \
     libcutils \
     libutils \

@@ -125,18 +125,14 @@ status_t AudioHardwareALSA::initCheck()
 
 status_t AudioHardwareALSA::setVoiceVolume(float volume)
 {
-#ifdef AUDIO_MODEM_TI
-    if (mMixer)
-        return mMixer->setVoiceVolume(volume);
-    else
-        return INVALID_OPERATION;
-#else
-    // The voice volume is used by the VOICE_CALL audio stream.
-    if (mMixer)
+    if ((mALSADevice) && (mALSADevice->voicevolume))
+        // allow hw specific modules to implement voice call volume
+        return mALSADevice->voicevolume(volume);
+    else if (mMixer)
+        // The voice volume is used by the VOICE_CALL audio stream.
         return mMixer->setVolume(AudioSystem::DEVICE_OUT_EARPIECE, volume, volume);
     else
         return INVALID_OPERATION;
-#endif
 }
 
 status_t AudioHardwareALSA::setMasterVolume(float volume)
@@ -166,6 +162,18 @@ status_t AudioHardwareALSA::setMode(int mode)
     }
 
     return status;
+}
+
+status_t AudioHardwareALSA::setParameters(const String8& keyValuePairs)
+{
+    if (mALSADevice && mALSADevice->set){
+        LOGI("setParameters got %s", keyValuePairs.string());
+        return mALSADevice->set(keyValuePairs);
+    }
+    else {
+        LOGE("setParameters INVALID OPERATION");
+        return INVALID_OPERATION;
+    }
 }
 
 AudioStreamOut *
@@ -243,6 +251,29 @@ AudioHardwareALSA::openInputStream(uint32_t devices,
     return in;
 }
 
+// non-default implementation
+size_t AudioHardwareALSA::getInputBufferSize(uint32_t sampleRate, int format, int channelCount)
+{
+   if (!(sampleRate == 8000 ||
+        sampleRate == 11025 ||
+        sampleRate == 16000 ||
+        sampleRate == 44100 ||
+        sampleRate == 48000)) {
+        LOGW("getInputBufferSize bad sampling rate: %d", sampleRate);
+        return 0;
+    }
+    if (format != AudioSystem::PCM_16_BIT) {
+        LOGW("getInputBufferSize bad format: %d", format);
+        return 0;
+    }
+    if (channelCount != 1) {
+        LOGW("getInputBufferSize bad channel count: %d", channelCount);
+        return 0;
+    }
+
+    return 320;
+}
+
 void
 AudioHardwareALSA::closeInputStream(AudioStreamIn* in)
 {
@@ -264,27 +295,6 @@ status_t AudioHardwareALSA::getMicMute(bool *state)
         return mMixer->getCaptureMuteState(AudioSystem::DEVICE_OUT_EARPIECE, state);
 
     return NO_ERROR;
-}
-
-// non-default implementation
-size_t AudioHardwareALSA::getInputBufferSize(uint32_t sampleRate, int format, int channelCount)
-{
-    if (!(sampleRate == 8000 ||
-        sampleRate == 16000 ||
-        sampleRate == 11025)) {
-        LOGW("getInputBufferSize bad sampling rate: %d", sampleRate);
-        return 0;
-    }
-    if (format != AudioSystem::PCM_16_BIT) {
-        LOGW("getInputBufferSize bad format: %d", format);
-        return 0;
-    }
-    if (channelCount != 1) {
-        LOGW("getInputBufferSize bad channel count: %d", channelCount);
-        return 0;
-    }
-
-    return 320;
 }
 
 status_t AudioHardwareALSA::dump(int fd, const Vector<String16>& args)
