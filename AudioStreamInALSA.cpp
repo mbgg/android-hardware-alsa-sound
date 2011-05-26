@@ -40,7 +40,6 @@ AudioStreamInALSA::AudioStreamInALSA(AudioHardwareALSA *parent,
         alsa_handle_t *handle,
         AudioSystem::audio_in_acoustics audio_acoustics) :
     ALSAStreamOps(parent, handle),
-    mFramesLost(0),
     mAcoustics(audio_acoustics)
 {
     acoustic_device_t *aDev = acoustics();
@@ -83,9 +82,16 @@ ssize_t AudioStreamInALSA::read(void *buffer, ssize_t bytes)
             if (mHandle->handle) {
                 if (n < 0) {
                     n = snd_pcm_recover(mHandle->handle, n, 0);
+
+                    /* there was an error, count this whole buffer as lost frames */
+                    framesLost += frames;
+
                     if (aDev && aDev->recover) aDev->recover(aDev, n);
-                } else
+                } else {
+                    /* not an error, but not all the requested frames were read */
+                    framesLost += frames - n;
                     n = snd_pcm_prepare(mHandle->handle);
+                  }
             }
             return static_cast<ssize_t>(n);
         }
@@ -104,6 +110,7 @@ status_t AudioStreamInALSA::open(int mode)
     AutoMutex lock(mLock);
 
     status_t status = ALSAStreamOps::open(mode);
+    framesLost = 0;
 
     acoustic_device_t *aDev = acoustics();
 
@@ -119,7 +126,9 @@ status_t AudioStreamInALSA::close()
 
     acoustic_device_t *aDev = acoustics();
 
-    if (mHandle && aDev) aDev->cleanup(aDev);
+    if (mHandle && aDev) {
+        aDev->cleanup(aDev);
+    }
 
     ALSAStreamOps::close();
 
@@ -134,7 +143,7 @@ status_t AudioStreamInALSA::close()
 status_t AudioStreamInALSA::standby()
 {
     AutoMutex lock(mLock);
-
+    framesLost = 0;
     if (mPowerLock) {
         release_wake_lock ("AudioInLock");
         mPowerLock = false;
@@ -146,18 +155,17 @@ status_t AudioStreamInALSA::standby()
 void AudioStreamInALSA::resetFramesLost()
 {
     AutoMutex lock(mLock);
-    mFramesLost = 0;
+    framesLost = 0;
 }
 
 unsigned int AudioStreamInALSA::getInputFramesLost() const
 {
-    unsigned int count = mFramesLost;
+    unsigned int count = framesLost;
     // Stupid interface wants us to have a side effect of clearing the count
     // but is defined as a const to prevent such a thing.
     ((AudioStreamInALSA *)this)->resetFramesLost();
     return count;
 }
-
 status_t AudioStreamInALSA::setAcousticParams(void *params)
 {
     AutoMutex lock(mLock);

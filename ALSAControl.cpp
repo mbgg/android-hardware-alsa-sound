@@ -46,6 +46,7 @@ ALSAControl::~ALSAControl()
     if (mHandle) snd_ctl_close(mHandle);
 }
 
+#ifdef AUDIO_MODEM_TI
 status_t ALSAControl::getmin(const char *name, unsigned int &min)
 {
     if (!mHandle) {
@@ -101,6 +102,7 @@ status_t ALSAControl::getmax(const char *name, unsigned int &max)
 
     return NO_ERROR;
 }
+#endif // AUDIO_MODEM_TI
 
 status_t ALSAControl::get(const char *name, unsigned int &value, int index)
 {

@@ -41,7 +41,6 @@ static int s_device_close(hw_device_t*);
 static status_t s_init(alsa_device_t *, ALSAHandleList &);
 static status_t s_open(alsa_handle_t *, uint32_t, int);
 static status_t s_close(alsa_handle_t *);
-static status_t s_standby(alsa_handle_t *);
 static status_t s_route(alsa_handle_t *, uint32_t, int);
 
 static hw_module_methods_t s_module_methods = {
@@ -77,7 +76,6 @@ static int s_device_open(const hw_module_t* module, const char* name,
     dev->init = s_init;
     dev->open = s_open;
     dev->close = s_close;
-    dev->standby = s_standby;
     dev->route = s_route;
 
     *device = &dev->common;
@@ -110,7 +108,6 @@ static alsa_handle_t _defaultsOut = {
     sampleRate  : DEFAULT_SAMPLE_RATE,
     latency     : 200000, // Desired Delay in usec
     bufferSize  : DEFAULT_SAMPLE_RATE / 5, // Desired Number of samples
-    mmap        : 0,
     modPrivate  : 0,
 };
 
@@ -125,7 +122,6 @@ static alsa_handle_t _defaultsIn = {
     sampleRate  : AudioRecord::DEFAULT_SAMPLE_RATE,
     latency     : 250000, // Desired Delay in usec
     bufferSize  : 2048, // Desired Number of samples
-    mmap        : 0,
     modPrivate  : 0,
 };
 
@@ -142,6 +138,7 @@ static const device_suffix_t deviceSuffix[] = {
         {AudioSystem::DEVICE_OUT_BLUETOOTH_SCO,  "_Bluetooth"},
         {AudioSystem::DEVICE_OUT_WIRED_HEADSET,  "_Headset"},
         {AudioSystem::DEVICE_OUT_BLUETOOTH_A2DP, "_Bluetooth-A2DP"},
+//        {AudioSystem::DEVICE_OUT_FM_HEADPHONE,   "_FM"},
 };
 
 static const int deviceSuffixLen = (sizeof(deviceSuffix)
@@ -525,16 +522,6 @@ static status_t s_close(alsa_handle_t *handle)
     }
 
     return err;
-}
-
-static status_t s_standby(alsa_handle_t *handle)
-{
-    //hw specific modules may choose to implement
-    //this differently to gain a power savings during
-    //standby
-    snd_pcm_drain (handle->handle);
-    return NO_ERROR;
-
 }
 
 static status_t s_route(alsa_handle_t *handle, uint32_t devices, int mode)

@@ -49,7 +49,6 @@ struct alsa_handle_t {
     uint32_t            sampleRate;
     unsigned int        latency;         // Delay in usec
     unsigned int        bufferSize;      // Size of sample buffer
-    int                 mmap;
     void *              modPrivate;
 };
 
@@ -61,11 +60,7 @@ struct alsa_device_t {
     status_t (*init)(alsa_device_t *, ALSAHandleList &);
     status_t (*open)(alsa_handle_t *, uint32_t, int);
     status_t (*close)(alsa_handle_t *);
-    status_t (*standby)(alsa_handle_t *);
     status_t (*route)(alsa_handle_t *, uint32_t, int);
-    status_t (*voicevolume)(float);
-    status_t (*set)(const String8&);
-    status_t (*resetDefaults)(alsa_handle_t *handle);
 };
 
 /**
@@ -104,7 +99,9 @@ public:
     status_t                setMasterGain(float gain);
 
     status_t                setVolume(uint32_t device, float left, float right);
-
+    #ifdef AUDIO_MODEM_TI
+    status_t                setVoiceVolume(float volume);
+    #endif
     status_t                setGain(uint32_t device, float gain);
 
     status_t                setCaptureMuteState(uint32_t device, bool state);
@@ -114,7 +111,6 @@ public:
 
 private:
     snd_mixer_t *           mMixer[SND_PCM_STREAM_LAST+1];
-
 };
 
 class ALSAControl
@@ -127,10 +123,10 @@ public:
     status_t                set(const char *name, unsigned int value, int index = -1);
 
     status_t                set(const char *name, const char *);
-
+#ifdef AUDIO_MODEM_TI
     status_t                getmin(const char *name, unsigned int &max);
     status_t                getmax(const char *name, unsigned int &min);
-
+#endif
 private:
     snd_ctl_t *             mHandle;
 };
@@ -217,8 +213,7 @@ public:
     status_t            close();
 
 private:
-    uint32_t            mFrameCount;
-
+    uint32_t framesRendered;
 };
 
 class AudioStreamInALSA : public AudioStreamIn, public ALSAStreamOps
@@ -266,10 +261,15 @@ public:
         return ALSAStreamOps::getParameters(keys);
     }
 
-    // Return the amount of input frames lost in the audio driver since the last call of this function.
-    // Audio driver is expected to reset the value to 0 and restart counting upon returning the current value by this function call.
-    // Such loss typically occurs when the user space process is blocked longer than the capacity of audio driver buffers.
-    // Unit: the number of input audio frames
+    /**
+     * Return the amount of input frames lost in the audio driver since the last
+     * call of this function. Audio driver is expected to reset the value to 0
+     * and restart counting upon returning the current value by this function call.
+     * Such loss typically occurs when the user space process is blocked longer
+     * than the capacity of audio driver buffers.
+     *
+     * Unit: the number of input audio frames
+     */
     virtual unsigned int  getInputFramesLost() const;
 
     status_t            setAcousticParams(void* params);
@@ -278,10 +278,9 @@ public:
     status_t            close();
 
 private:
-    void                resetFramesLost();
-
-    unsigned int        mFramesLost;
     AudioSystem::audio_in_acoustics mAcoustics;
+    void                resetFramesLost();
+    unsigned int framesLost;
 };
 
 class AudioHardwareALSA : public AudioHardwareBase
@@ -318,8 +317,7 @@ public:
     virtual status_t    getMicMute(bool* state);
 
     // set/get global audio parameters
-    virtual status_t    setParameters(const String8& keyValuePairs);
-
+    //virtual status_t    setParameters(const String8& keyValuePairs);
     //virtual String8     getParameters(const String8& keys);
 
     // Returns audio input buffer size according to parameters passed or 0 if one of the
