@@ -78,9 +78,14 @@ status_t ALSAStreamOps::set(int      *format,
                             uint32_t *channels,
                             uint32_t *rate)
 {
+
+    status_t status = NO_ERROR;
     if (channels && *channels != 0) {
-        if (mHandle->channels != popCount(*channels))
-            return BAD_VALUE;
+        if (mHandle->channels != popCount(*channels)) {
+            //updating default value
+            mHandle->channels = popCount(*channels);
+            status = BAD_VALUE;
+        }
     } else if (channels) {
         *channels = 0;
         if (mHandle->devices & AudioSystem::DEVICE_OUT_ALL)
@@ -110,8 +115,11 @@ status_t ALSAStreamOps::set(int      *format,
     }
 
     if (rate && *rate > 0) {
-        if (mHandle->sampleRate != *rate)
-            return BAD_VALUE;
+        if (mHandle->sampleRate != *rate){
+            //updating default value
+            mHandle->sampleRate = *rate;
+            status = BAD_VALUE;
+        }
     } else if (rate)
         *rate = mHandle->sampleRate;
 
@@ -135,21 +143,34 @@ status_t ALSAStreamOps::set(int      *format,
                 break;
         }
 
-        if (mHandle->format != iformat)
-            return BAD_VALUE;
-
-        switch(iformat) {
-            default:
-            case SND_PCM_FORMAT_S16_LE:
-                *format = AudioSystem::PCM_16_BIT;
-                break;
-            case SND_PCM_FORMAT_S8:
-                *format = AudioSystem::PCM_8_BIT;
-                break;
+        if (mHandle->format != iformat){
+            //updating default value
+            mHandle->format = iformat;
+            status = BAD_VALUE;
+        } else {
+            switch(iformat) {
+                default:
+                case SND_PCM_FORMAT_S16_LE:
+                    *format = AudioSystem::PCM_16_BIT;
+                    break;
+                case SND_PCM_FORMAT_S8:
+                    *format = AudioSystem::PCM_8_BIT;
+                    break;
+            }
         }
     }
+    if (status == BAD_VALUE) {
+        /* resetting the default values */
+        if (mParent->mALSADevice->resetDefaults) {
+            status = mParent->mALSADevice->resetDefaults(mHandle);
+            if (status != NO_ERROR) {
+                LOGE("reset defaults return failure");
+                return BAD_VALUE;
+            }
+        }
+    }
+    return status;
 
-    return NO_ERROR;
 }
 
 status_t ALSAStreamOps::setParameters(const String8& keyValuePairs)
@@ -159,6 +180,13 @@ status_t ALSAStreamOps::setParameters(const String8& keyValuePairs)
     status_t status = NO_ERROR;
     int device;
     LOGV("setParameters() %s", keyValuePairs.string());
+    String8 keyfm = String8("fm_off");
+    String8 valuefm;
+    if (param.get(keyfm, valuefm) == NO_ERROR) {
+        mParent->mALSADevice->standby(mHandle);
+        param.remove(keyfm);
+        return status;
+    }
 
     if (param.getInt(key, device) == NO_ERROR) {
         mParent->mALSADevice->route(mHandle, (uint32_t)device, mParent->mode());
@@ -166,7 +194,15 @@ status_t ALSAStreamOps::setParameters(const String8& keyValuePairs)
     }
 
     if (param.size()) {
-        status = BAD_VALUE;
+        // default action: fwd the kvp's to the module incase it wants to take action
+        if (mParent->mALSADevice->set) {
+           status = mParent->mALSADevice->set(keyValuePairs);
+           LOGI("setParameters() %s, %d", keyValuePairs.string(), (int)status);
+           return status;
+        } else {
+           LOGI("setParameters() :: BAD_VALUE");
+           return BAD_VALUE;
+        }
     }
     return status;
 }

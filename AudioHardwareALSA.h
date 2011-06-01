@@ -49,6 +49,7 @@ struct alsa_handle_t {
     uint32_t            sampleRate;
     unsigned int        latency;         // Delay in usec
     unsigned int        bufferSize;      // Size of sample buffer
+    int                 mmap;
     void *              modPrivate;
 };
 
@@ -60,7 +61,11 @@ struct alsa_device_t {
     status_t (*init)(alsa_device_t *, ALSAHandleList &);
     status_t (*open)(alsa_handle_t *, uint32_t, int);
     status_t (*close)(alsa_handle_t *);
+    status_t (*standby)(alsa_handle_t *);
     status_t (*route)(alsa_handle_t *, uint32_t, int);
+    status_t (*voicevolume)(float);
+    status_t (*set)(const String8&);
+    status_t (*resetDefaults)(alsa_handle_t *handle);
 };
 
 /**
@@ -317,7 +322,8 @@ public:
     virtual status_t    getMicMute(bool* state);
 
     // set/get global audio parameters
-    //virtual status_t    setParameters(const String8& keyValuePairs);
+    virtual status_t    setParameters(const String8& keyValuePairs);
+
     //virtual String8     getParameters(const String8& keys);
 
     // Returns audio input buffer size according to parameters passed or 0 if one of the

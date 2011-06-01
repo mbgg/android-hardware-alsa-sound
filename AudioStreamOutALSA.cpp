@@ -97,9 +97,16 @@ ssize_t AudioStreamOutALSA::write(const void *buffer, size_t bytes)
     status_t          err;
 
     do {
+        if (mHandle->mmap) {
+            n = snd_pcm_mmap_writei(mHandle->handle,
+                                   (char *)buffer + sent,
+                                   snd_pcm_bytes_to_frames(mHandle->handle, bytes - sent));
+        }
+        else {
         n = snd_pcm_writei(mHandle->handle,
                            (char *)buffer + sent,
                            snd_pcm_bytes_to_frames(mHandle->handle, bytes - sent));
+		}
         if (n < 0) {
             if (n == -EBADFD) {
                 /* if there is such a problem, re-open the device to recover,
