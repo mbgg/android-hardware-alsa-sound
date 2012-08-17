@@ -20,6 +20,7 @@
 
 #include "AudioHardwareALSA.h"
 #include <media/AudioRecord.h>
+#include <hardware_legacy/AudioSystemLegacy.h>
 
 #undef DISABLE_HARWARE_RESAMPLING
 
@@ -35,7 +36,7 @@
 
 namespace android
 {
-
+	
 static int s_device_open(const hw_module_t*, const char*, hw_device_t**);
 static int s_device_close(hw_device_t*);
 static status_t s_init(alsa_device_t *, ALSAHandleList &);
@@ -101,7 +102,7 @@ static const char *devicePrefix[SND_PCM_STREAM_LAST + 1] = {
 
 static alsa_handle_t _defaultsOut = {
     module      : 0,
-    devices     : AudioSystem::DEVICE_OUT_ALL,
+    devices     : android_audio_legacy::AudioSystem::DEVICE_OUT_ALL,
     curDev      : 0,
     curMode     : 0,
     handle      : 0,
@@ -116,7 +117,7 @@ static alsa_handle_t _defaultsOut = {
 
 static alsa_handle_t _defaultsIn = {
     module      : 0,
-    devices     : AudioSystem::DEVICE_IN_ALL,
+    devices     : android_audio_legacy::AudioSystem::DEVICE_IN_ALL,
     curDev      : 0,
     curMode     : 0,
     handle      : 0,
@@ -130,18 +131,18 @@ static alsa_handle_t _defaultsIn = {
 };
 
 struct device_suffix_t {
-    const AudioSystem::audio_devices device;
+    const android_audio_legacy::AudioSystem::audio_devices device;
     const char *suffix;
 };
 
 /* The following table(s) need to match in order of the route bits
  */
 static const device_suffix_t deviceSuffix[] = {
-        {AudioSystem::DEVICE_OUT_EARPIECE,       "_Earpiece"},
-        {AudioSystem::DEVICE_OUT_SPEAKER,        "_Speaker"},
-        {AudioSystem::DEVICE_OUT_BLUETOOTH_SCO,  "_Bluetooth"},
-        {AudioSystem::DEVICE_OUT_WIRED_HEADSET,  "_Headset"},
-        {AudioSystem::DEVICE_OUT_BLUETOOTH_A2DP, "_Bluetooth-A2DP"},
+        {android_audio_legacy::AudioSystem::DEVICE_OUT_EARPIECE,       "_Earpiece"},
+        {android_audio_legacy::AudioSystem::DEVICE_OUT_SPEAKER,        "_Speaker"},
+        {android_audio_legacy::AudioSystem::DEVICE_OUT_BLUETOOTH_SCO,  "_Bluetooth"},
+        {android_audio_legacy::AudioSystem::DEVICE_OUT_WIRED_HEADSET,  "_Headset"},
+        {android_audio_legacy::AudioSystem::DEVICE_OUT_BLUETOOTH_A2DP, "_Bluetooth-A2DP"},
 //        {AudioSystem::DEVICE_OUT_FM_HEADPHONE,   "_FM"},
 };
 
@@ -152,7 +153,7 @@ static const int deviceSuffixLen = (sizeof(deviceSuffix)
 
 snd_pcm_stream_t direction(alsa_handle_t *handle)
 {
-    return (handle->devices & AudioSystem::DEVICE_OUT_ALL) ? SND_PCM_STREAM_PLAYBACK
+    return (handle->devices & android_audio_legacy::AudioSystem::DEVICE_OUT_ALL) ? SND_PCM_STREAM_PLAYBACK
             : SND_PCM_STREAM_CAPTURE;
 }
 
@@ -171,15 +172,15 @@ const char *deviceName(alsa_handle_t *handle, uint32_t device, int mode)
         }
 
     if (hasDevExt) switch (mode) {
-    case AudioSystem::MODE_NORMAL:
+    case android_audio_legacy::AudioSystem::MODE_NORMAL:
         ALSA_STRCAT (devString, "_normal")
         ;
         break;
-    case AudioSystem::MODE_RINGTONE:
+    case android_audio_legacy::AudioSystem::MODE_RINGTONE:
         ALSA_STRCAT (devString, "_ringtone")
         ;
         break;
-    case AudioSystem::MODE_IN_CALL:
+    case android_audio_legacy::AudioSystem::MODE_IN_CALL:
         ALSA_STRCAT (devString, "_incall")
         ;
         break;
@@ -380,7 +381,7 @@ status_t setSoftwareParams(alsa_handle_t *handle)
     // Configure ALSA to start the transfer when the buffer is almost full.
     snd_pcm_get_params(handle->handle, &bufferSize, &periodSize);
 
-    if (handle->devices & AudioSystem::DEVICE_OUT_ALL) {
+    if (handle->devices & android_audio_legacy::AudioSystem::DEVICE_OUT_ALL) {
         // For playback, configure ALSA to start the transfer when the
         // buffer is full.
         startThreshold = bufferSize - 1;

@@ -51,7 +51,7 @@ struct mixer_info_t;
 
 struct alsa_properties_t
 {
-    const AudioSystem::audio_devices device;
+    const android_audio_legacy::AudioSystem::audio_devices device;
     const char         *propName;
     const char         *propDefault;
     mixer_info_t       *mInfo;
@@ -65,17 +65,17 @@ struct alsa_properties_t
 
 static alsa_properties_t
 mixerMasterProp[SND_PCM_STREAM_LAST+1] =
-        ALSA_PROP(AudioSystem::DEVICE_OUT_ALL, "master", "PCM", "Capture");
+        ALSA_PROP(android_audio_legacy::AudioSystem::DEVICE_OUT_ALL, "master", "PCM", "Capture");
 
 static alsa_properties_t
 mixerProp[][SND_PCM_STREAM_LAST+1] = {
-    ALSA_PROP(AudioSystem::DEVICE_OUT_EARPIECE, "earpiece", "Earpiece", "Analog"),
-    ALSA_PROP(AudioSystem::DEVICE_OUT_SPEAKER, "speaker", "Speaker",  ""),
-    ALSA_PROP(AudioSystem::DEVICE_OUT_WIRED_HEADSET, "headset", "Headset", "Analog"),
-    ALSA_PROP(AudioSystem::DEVICE_OUT_BLUETOOTH_SCO, "bluetooth.sco", "Bluetooth", "Bluetooth Capture"),
-    ALSA_PROP(AudioSystem::DEVICE_OUT_BLUETOOTH_A2DP, "bluetooth.a2dp", "Bluetooth A2DP", "Bluetooth A2DP Capture"),
+    ALSA_PROP(android_audio_legacy::AudioSystem::DEVICE_OUT_EARPIECE, "earpiece", "Earpiece", "Analog"),
+    ALSA_PROP(android_audio_legacy::AudioSystem::DEVICE_OUT_SPEAKER, "speaker", "Speaker",  ""),
+    ALSA_PROP(android_audio_legacy::AudioSystem::DEVICE_OUT_WIRED_HEADSET, "headset", "Headset", "Analog"),
+    ALSA_PROP(android_audio_legacy::AudioSystem::DEVICE_OUT_BLUETOOTH_SCO, "bluetooth.sco", "Bluetooth", "Bluetooth Capture"),
+    ALSA_PROP(android_audio_legacy::AudioSystem::DEVICE_OUT_BLUETOOTH_A2DP, "bluetooth.a2dp", "Bluetooth A2DP", "Bluetooth A2DP Capture"),
 //    ALSA_PROP(AudioSystem::DEVICE_OUT_FM_HEADPHONE, "fm", "FM", ""),
-    ALSA_PROP(static_cast<AudioSystem::audio_devices>(0), "", NULL, NULL)
+    ALSA_PROP(static_cast<android_audio_legacy::AudioSystem::audio_devices>(0), "", NULL, NULL)
 };
 
 struct mixer_info_t
@@ -107,7 +107,7 @@ struct mixer_incall_vol_info_t
 
 struct alsa_incall_vol_properties_t
 {
-    const AudioSystem::audio_devices device;
+    const android_audio_legacy::AudioSystem::audio_devices device;
     const char                       *propName;
     const char                       *propDefault;
     mixer_incall_vol_info_t          *mInfo;
@@ -121,15 +121,15 @@ struct alsa_incall_vol_properties_t
 
 static alsa_incall_vol_properties_t
 inCallVolumeProp[] = {
-    ALSA_INCALL_VOLUME_PROP(AudioSystem::DEVICE_OUT_EARPIECE,
+    ALSA_INCALL_VOLUME_PROP(android_audio_legacy::AudioSystem::DEVICE_OUT_EARPIECE,
                             "earpiece", "DAC Voice Digital Downlink Volume"),
-    ALSA_INCALL_VOLUME_PROP(AudioSystem::DEVICE_OUT_SPEAKER,
+    ALSA_INCALL_VOLUME_PROP(android_audio_legacy::AudioSystem::DEVICE_OUT_SPEAKER,
                             "speaker", "DAC Voice Digital Downlink Volume"),
-    ALSA_INCALL_VOLUME_PROP(AudioSystem::DEVICE_OUT_WIRED_HEADSET,
+    ALSA_INCALL_VOLUME_PROP(android_audio_legacy::AudioSystem::DEVICE_OUT_WIRED_HEADSET,
                             "headset", "DAC Voice Digital Downlink Volume"),
-    ALSA_INCALL_VOLUME_PROP(AudioSystem::DEVICE_OUT_BLUETOOTH_SCO,
+    ALSA_INCALL_VOLUME_PROP(android_audio_legacy::AudioSystem::DEVICE_OUT_BLUETOOTH_SCO,
                             "bluetooth.sco", "BT Digital Playback Volume"),
-    ALSA_INCALL_VOLUME_PROP(static_cast<AudioSystem::audio_devices>(0),
+    ALSA_INCALL_VOLUME_PROP(static_cast<android_audio_legacy::AudioSystem::audio_devices>(0),
                             "", "")
 };
 #endif

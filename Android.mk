@@ -7,69 +7,71 @@ ifeq ($(strip $(BOARD_USES_ALSA_AUDIO)),true)
 
   LOCAL_PATH := $(call my-dir)
 
-  include $(CLEAR_VARS)
+#  include $(CLEAR_VARS)
+#
+#  LOCAL_ARM_MODE := arm
+#  LOCAL_CFLAGS := -D_POSIX_SOURCE
+#  ifeq ($(strip $(BOARD_USES_TI_OMAP3_MODEM_AUDIO)),true)
+#    LOCAL_CFLAGS += -DAUDIO_MODEM_TI
+#  endif
+#
+#  LOCAL_C_INCLUDES += external/alsa-lib/include
+#  LOCAL_C_INCLUDES += libhardware_legacy/include
+#  LOCAL_C_INCLUDES += external/llvm/include
+#
+#  ifeq ($(strip $(TARGET_BOOTLOADER_BOARD_NAME)),am389xevm)
+#    LOCAL_CFLAGS += -DAM389x_DEVICE_LOCK
+#  endif
+#
+#  LOCAL_SRC_FILES := \
+#	AudioHardwareALSA.cpp \
+#	AudioStreamOutALSA.cpp \
+#	AudioStreamInALSA.cpp \
+#	ALSAStreamOps.cpp \
+#	ALSAMixer.cpp \
+#	ALSAControl.cpp
+#
+#  LOCAL_MODULE_TAGS := optional
+#  LOCAL_MODULE := libaudio
+#
+#  LOCAL_STATIC_LIBRARIES += libaudiointerface
+#
+#  LOCAL_SHARED_LIBRARIES := \
+#    libasound \
+#    libcutils \
+#    libutils \
+#    libmedia \
+#    libhardware \
+#    libhardware_legacy \
+#    libc
+#
+#ifeq ($(BOARD_HAVE_BLUETOOTH),true)
+#  LOCAL_SHARED_LIBRARIES += liba2dp
+#endif
 
-  LOCAL_ARM_MODE := arm
-  LOCAL_CFLAGS := -D_POSIX_SOURCE
-  ifeq ($(strip $(BOARD_USES_TI_OMAP3_MODEM_AUDIO)),true)
-    LOCAL_CFLAGS += -DAUDIO_MODEM_TI
-  endif
-
-  LOCAL_C_INCLUDES += external/alsa-lib/include
-
-  ifeq ($(strip $(TARGET_BOOTLOADER_BOARD_NAME)),am389xevm)
-    LOCAL_CFLAGS += -DAM389x_DEVICE_LOCK
-  endif
-
-  LOCAL_SRC_FILES := \
-	AudioHardwareALSA.cpp \
-	AudioStreamOutALSA.cpp \
-	AudioStreamInALSA.cpp \
-	ALSAStreamOps.cpp \
-	ALSAMixer.cpp \
-	ALSAControl.cpp
-
-  LOCAL_MODULE_TAGS := optional
-  LOCAL_MODULE := libaudio
-
-  LOCAL_STATIC_LIBRARIES += libaudiointerface
-
-  LOCAL_SHARED_LIBRARIES := \
-    libasound \
-    libcutils \
-    libutils \
-    libmedia \
-    libhardware \
-    libhardware_legacy \
-    libc
-
-ifeq ($(BOARD_HAVE_BLUETOOTH),true)
-  LOCAL_SHARED_LIBRARIES += liba2dp
-endif
-
-  include $(BUILD_SHARED_LIBRARY)
+#  include $(BUILD_SHARED_LIBRARY)
 
 # This is the ALSA audio policy manager
 
-  include $(CLEAR_VARS)
-
-  LOCAL_CFLAGS := -D_POSIX_SOURCE
-
-ifeq ($(BOARD_HAVE_BLUETOOTH),true)
-        LOCAL_CFLAGS += -DWITH_A2DP
-endif
-
-  LOCAL_SRC_FILES := AudioPolicyManagerALSA.cpp
-
-  LOCAL_MODULE_TAGS := optional
-  LOCAL_MODULE := libaudiopolicy
-
-  LOCAL_SHARED_LIBRARIES := \
-    libcutils \
-    libutils \
-    libmedia
-
-  include $(BUILD_SHARED_LIBRARY)
+#  include $(CLEAR_VARS)
+#
+#  LOCAL_CFLAGS := -D_POSIX_SOURCE
+#
+#ifeq ($(BOARD_HAVE_BLUETOOTH),true)
+#        LOCAL_CFLAGS += -DWITH_A2DP
+#endif
+#
+#  LOCAL_SRC_FILES := AudioPolicyManagerALSA.cpp
+#
+#  LOCAL_MODULE_TAGS := optional
+#  LOCAL_MODULE := libaudiopolicy
+#
+#  LOCAL_SHARED_LIBRARIES := \
+#    libcutils \
+#    libutils \
+#    libmedia
+#
+#  include $(BUILD_SHARED_LIBRARY)
 
 # This is the default ALSA module which behaves closely like the original
 
@@ -109,6 +111,7 @@ endif
   LOCAL_CFLAGS := -D_POSIX_SOURCE -Wno-multichar
 
   LOCAL_C_INCLUDES += external/alsa-lib/include
+  LOCAL_C_INCLUDES += frameworks/base/include
 
   LOCAL_SRC_FILES:= acoustics_default.cpp
 

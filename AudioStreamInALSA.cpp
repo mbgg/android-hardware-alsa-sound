@@ -38,7 +38,7 @@ namespace android
 
 AudioStreamInALSA::AudioStreamInALSA(AudioHardwareALSA *parent,
         alsa_handle_t *handle,
-        AudioSystem::audio_in_acoustics audio_acoustics) :
+        android_audio_legacy::AudioSystem::audio_in_acoustics audio_acoustics) :
     ALSAStreamOps(parent, handle),
     mAcoustics(audio_acoustics)
 {
